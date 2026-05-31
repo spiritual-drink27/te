@@ -27,7 +27,7 @@ st.set_page_config(
 init_db()
 
 # ── Inject CSS ────────────────────────────────────────────────────
-inject_css()
+# inject_css()
 
 # ── Session state defaults ────────────────────────────────────────
 _defaults = {
