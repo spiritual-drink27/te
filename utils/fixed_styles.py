@@ -47,11 +47,7 @@ def inject_css():
     /* Header, footer, main menu */
     #MainMenu, footer, header { visibility: hidden !important; height: 0 !important; }
 
-    /* Hide Streamlit's auto-generated multipage navigation in sidebar
-       (the list of pages that appears when you have a pages/ folder) */
-    [data-testid="stSidebarNav"] { display: none !important; }
-    [data-testid="stSidebarNavItems"] { display: none !important; }
-    [data-testid="stSidebarNavSeparator"] { display: none !important; }
+
 
     /* ── Sidebar ── */
     [data-testid="stSidebar"] {
@@ -60,7 +56,6 @@ def inject_css():
     }
     [data-testid="stSidebar"] p,
     [data-testid="stSidebar"] span,
-    [data-testid="stSidebar"] div,
     [data-testid="stSidebar"] label { color: #d1fae5 !important; }
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
