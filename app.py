@@ -12,11 +12,12 @@ Responsibilities:
 
 import streamlit as st
 from database import init_db, get_user
-from utils.styles import inject_css
+# from utils.styles import inject_css
+from utils.fixed_styles import inject_css
 
 # ── Page config (must be first Streamlit call) ────────────────────
 st.set_page_config(
-    page_title="GHG Tracker · CIL Sonpur Bazari",
+    page_title="GHG Tracker · CIL Sonepur Bazari",
     page_icon="🌱",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -26,7 +27,7 @@ st.set_page_config(
 init_db()
 
 # ── Inject CSS ────────────────────────────────────────────────────
-# inject_css()
+inject_css()
 
 # ── Session state defaults ────────────────────────────────────────
 _defaults = {
@@ -49,7 +50,10 @@ def is_authenticated() -> bool:
 def render_sidebar():
     user = st.session_state.user
     with st.sidebar:
-        # Brand
+        import os
+        if os.path.exists("assets/logo.jpeg"):
+            st.image("assets/logo.jpeg", width=120)
+
         st.markdown("""
         <div style="text-align:center; padding: 16px 0 24px;">
             <div style="font-size:40px">🌱</div>
@@ -57,7 +61,7 @@ def render_sidebar():
                 GHG TRACKER
             </div>
             <div style="font-size:11px; color:#6ee7b7; margin-top:2px;">
-                CIL Sonpur Bazari Area
+                CIL Sonepur Bazari Area
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -114,12 +118,12 @@ def render_sidebar():
 # ── Main router ───────────────────────────────────────────────────
 def main():
     if not is_authenticated():
-        # Auth pages (no sidebar)
+        # Auth views (no sidebar)
         if st.session_state.page == "register":
-            from pages.auth import show_register
+            from views.auth import show_register
             show_register()
         else:
-            from pages.auth import show_login
+            from views.auth import show_login
             show_login()
         return
 
@@ -130,19 +134,19 @@ def main():
     page = st.session_state.page
 
     if page == "daily_log":
-        from pages.daily_log import show_daily_log
+        from views.daily_log import show_daily_log
         show_daily_log()
 
     elif page == "dashboard":
-        from pages.dashboard import show_dashboard
+        from views.dashboard import show_dashboard
         show_dashboard()
 
     elif page == "leaderboard":
-        from pages.leaderboard import show_leaderboard
+        from views.leaderboard import show_leaderboard
         show_leaderboard()
 
     elif page == "profile":
-        from pages.profile import show_profile
+        from views.profile import show_profile
         show_profile()
 
     else:
