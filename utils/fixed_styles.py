@@ -370,6 +370,22 @@ def inject_css():
         border-top: 1px solid #d1fae5;
         margin: 20px 0;
     }
+    
+    /* ── Hide sidebar collapse button ── */
+    [data-testid="collapsedControl"],
+    button[kind="header"] {
+         display: none !important;
+    }
+    
+    /* ── Lock sidebar always open ── */
+    [data-testid="stSidebar"] {
+        transform: none !important;
+        min-width: 250px !important;
+        width: 250px !important;
+    }
+    [data-testid="stSidebarCollapsedControl"] {
+        display: none !important;
+    }
 
     /* ── Active sidebar nav item (CSS class injected via st.markdown) ── */
     .nav-btn-active > div > button {

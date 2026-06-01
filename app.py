@@ -137,7 +137,7 @@ def main():
         show_daily_log()
 
     elif page == "dashboard":
-        from views.dashboard import show_dashboard
+        from views.dashboard2 import show_dashboard
         show_dashboard()
 
     elif page == "leaderboard":
