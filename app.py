@@ -58,7 +58,7 @@ def render_sidebar():
         <div style="text-align:center; padding: 16px 0 24px;">
             <div style="font-size:40px">🌱</div>
             <div style="font-size:15px; font-weight:800; color:#86efac; letter-spacing:.04em;">
-                GHG TRACKER
+                CARBON MITRA
             </div>
             <div style="font-size:11px; color:#6ee7b7; margin-top:2px;">
                 ECL Sonepur Bazari Area
