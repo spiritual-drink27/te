@@ -20,19 +20,42 @@ AC_OPTIONS   = ["No AC", "1.0 Ton", "1.5 Ton", "2.0 Ton"]
 MEAL_OPTIONS = ["Vegetarian", "Non-Vegetarian"]
 PRINTER_OPTS = ["None", "Inkjet", "Laser", "Office Copier"]
 
+import base64
 
+def add_bg(image_file):
+    import os
+    if not os.path.exists(image_file):
+        return
+    with open(image_file, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+    st.markdown(f"""
+        <style>
+        .stApp, [data-testid="stAppViewContainer"] {{
+            background-image: url("data:image/jpeg;base64,{encoded}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+    
 def show_login():
+    add_bg("assets/sonpur_mine.jpeg")
     from PIL import Image
     img=Image.open("assets/logo.jpeg")
-    st.image(img, width=150)
+    col1, col2, col3 = st.columns([2, 2, 2])
+    with col2:
+        st.image(img, width=500)
+
 
     st.markdown("""
 <div class="login-wrap">
     <div class="login-logo">🌱</div>
-    <div class="login-title">GHG Tracker</div>
+    <div class="login-title">CARBON MITRA </div>
     <div style="font-size:15px; font-weight:800; color:#15803d; text-align:center; 
                 letter-spacing:.06em; text-transform:uppercase; margin-bottom:4px;">
-        CIL Sonepur Bazari Area
+        ECL Sonepur Bazari Area
     </div>
     <div class="login-sub">🌍 World Environment Day Initiative</div>
 </div>

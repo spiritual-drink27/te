@@ -180,53 +180,6 @@ def show_daily_log():
         st.session_state.last_emission = result
 
         st.success("✅ Emissions saved successfully!")
-        _show_result_summary(result, user["employee_id"])
-
-
-def _show_result_summary(result, employee_id: str):
-    """Quick summary panel shown after successful submission."""
-    section_title("📊 Today's Results")
-
-    # Eco title
-    df_all = get_emissions(employee_id)
-    streak = get_streak(df_all)
-    title, color, message = get_eco_title(result.total)
-    eco_title_banner(title, color, message, streak)
-
-    # KPI cards
-    cols = st.columns(4)
-    card_data = [
-        ("Total Emission", result.total, "kg CO₂e", "🌍", "green"),
-        ("Commute",        result.commute + result.official_visit, "kg CO₂e", "🚗", "blue"),
-        ("AC Usage",       result.ac,     "kg CO₂e", "❄️", "teal"),
-        ("PC Usage",       result.pc,     "kg CO₂e", "💻", "purple"),
-    ]
-    for col, (lbl, val, unit, icon, color) in zip(cols, card_data):
-        with col:
-            metric_card(lbl, val, unit, icon, color)
-
-    cols2 = st.columns(3)
-    card_data2 = [
-        ("Meal",    result.meal,    "kg CO₂e", "🥗", "amber"),
-        ("Printer", result.printer, "kg CO₂e", "🖨️", "stone"),
-        ("Official Visit", result.official_visit, "kg CO₂e", "🗺️", "red"),
-    ]
-    for col, (lbl, val, unit, icon, color) in zip(cols2, card_data2):
-        with col:
-            metric_card(lbl, val, unit, icon, color)
-
-    # Equivalents
-    section_title("🔄 What does this mean?")
-    eq = emission_equivalents(result.total)
-    eq_cols = st.columns(6)
-    eq_data = [
-        ("🪨", eq["coal_g"],        "grams of coal"),
-        ("🚬", eq["cigarettes"],    "cigarettes equiv."),
-        ("📱", eq["phone_charges"], "phone charges"),
-        ("💡", eq["led_hours"],     "LED bulb hours"),
-        ("⛽", eq["petrol_ml"],     "mL of petrol"),
-        ("🌳", eq["trees_days"],    "tree-days to absorb"),
-    ]
-    for col, (icon, val, lbl) in zip(eq_cols, eq_data):
-        with col:
-            equiv_card(icon, val, lbl)
+        # _show_result_summary(result, user["employee_id"])
+        st.session_state.page = "dashboard"
+        st.rerun()

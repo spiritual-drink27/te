@@ -61,7 +61,7 @@ def render_sidebar():
                 GHG TRACKER
             </div>
             <div style="font-size:11px; color:#6ee7b7; margin-top:2px;">
-                CIL Sonepur Bazari Area
+                ECL Sonepur Bazari Area
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -113,7 +113,6 @@ def render_sidebar():
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.rerun()
-
 
 # ── Main router ───────────────────────────────────────────────────
 def main():
