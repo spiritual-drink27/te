@@ -193,11 +193,14 @@ def show_dashboard():
 
     # ── Time range switcher ──────────────────────────────────────────
     st.markdown('<div class="db-section">📊 Emission Overview</div>', unsafe_allow_html=True)
-    range_sel = st.radio(
-        "range", ["Today", "This Week", "This Month"],
-        horizontal=True, label_visibility="collapsed",
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        range_sel = st.selectbox(
+        "Time Range",
+        ["Today", "This Week", "This Month"],
+        label_visibility="collapsed",
         key="dash_range"
-    )
+        )
 
     # ── Main visual based on range ───────────────────────────────────
     if range_sel == "Today":
@@ -251,7 +254,7 @@ def show_dashboard():
             display_df = display_df.sort_values("Date", ascending=False)
             st.dataframe(
                 display_df.style.format({
-                    c: "{:.3f}" for c in display_df.columns if c != "Date"
+                    c: "{:.2f}" for c in display_df.columns if c != "Date"
                 }).background_gradient(subset=["Total"], cmap="RdYlGn_r"),
                 use_container_width=True,
                 hide_index=True,
@@ -264,7 +267,7 @@ def show_dashboard():
 def _show_today(today_row, total_today, color):
     if not today_row:
         st.markdown("""
-        <div style="text-align:center; padding:40px 0; color:#6b7280;">
+        <div style="text-align:center; padding:40px 0; color:#374151;">
             <div style="font-size:48px;">📅</div>
             <div style="font-size:15px; margin-top:8px; font-weight:500;">No entry for today yet</div>
             <div style="font-size:13px; margin-top:4px;">Go to Daily Log to record your activities</div>
@@ -277,13 +280,13 @@ def _show_today(today_row, total_today, color):
 
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=round(total_today, 3),
+        value=round(total_today, 2),
         number={"suffix": " kg", "font": {"size": 36, "family": "DM Mono", "color": "#052e16"}},
         gauge={
-            "axis": {"range": [0, MAX_DAILY_KG], "tickwidth": 1, "tickcolor": "#d1fae5",
-                     "tickfont": {"size": 10}},
+            "axis": {"range": [0, MAX_DAILY_KG], "tickwidth": 1, "tickcolor": "#5060f0",
+                     "tickfont": {"size": 10, "color": "#405785"}},
             "bar":  {"color": color, "thickness": 0.22},
-            "bgcolor": "#f0fdf4",
+            "bgcolor": "#c7f1d4",
             "borderwidth": 0,
             "steps": [
                 {"range": [0,  3],  "color": "#dcfce7"},
@@ -345,7 +348,7 @@ def _show_today(today_row, total_today, color):
             marker_colors=[color_map.get(k, "#22c55e") for k in components],
             hole=0.55,
             textinfo="label+percent",
-            textfont={"size": 12, "family": "DM Sans"},
+            textfont={"size": 12, "family": "DM Sans", "color": "#405785"},
             hovertemplate="%{label}: %{value:.3f} kg<extra></extra>",
         ))
         fig_donut.add_annotation(
@@ -357,7 +360,7 @@ def _show_today(today_row, total_today, color):
             title={"text": "Category Breakdown", "font": {"size": 14, "color": "#6b7280"}},
             template=PLOTLY_TEMPLATE,
             showlegend=True,
-            legend={"orientation": "h", "yanchor": "bottom", "y": -0.15},
+            legend={"orientation": "h", "yanchor": "bottom", "y": -0.4},
             margin=dict(t=40, b=40, l=10, r=10),
             height=320,
             paper_bgcolor="rgba(0,0,0,0)",
@@ -417,14 +420,16 @@ def _show_weekly(df_week: pd.DataFrame):
 
     fig.update_layout(
         title={"text": f"Week of {monday.strftime('%d %b')}",
-               "font": {"size": 14, "color": "#6b7280", "family": "DM Sans"}},
+               "font": {"size": 14, "color": "#0d1320", "family": "DM Sans"}},
         yaxis_title="kg CO₂e",
+        xaxis={"tickfont": {"color": "#111827", "size": 12, "family": "DM Sans"}},
+        yaxis={"gridcolor": "#f0fdf4", "tickfont": {"color": "#111827", "size": 11}},
         template=PLOTLY_TEMPLATE,
         margin=dict(t=50, b=20, l=10, r=10),
         height=320,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        yaxis={"gridcolor": "#f0fdf4"},
+        # yaxis={"gridcolor": "#f0fdf4"},
         showlegend=False,
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -451,46 +456,72 @@ def _show_weekly(df_week: pd.DataFrame):
 
 # ── Monthly view ─────────────────────────────────────────────────────
 def _show_monthly(df_month: pd.DataFrame):
-    if df_month.empty:
-        st.markdown("""
-        <div style="text-align:center; padding:40px 0; color:#6b7280;">
-            <div style="font-size:48px;">📆</div>
-            <div style="font-size:15px; margin-top:8px; font-weight:500;">No monthly data yet</div>
-        </div>
-        """, unsafe_allow_html=True)
-        return
+    # Build full 12-month scaffold
+    current_year = date.today().year
+    all_months = [f"{current_year}-{m:02d}" for m in range(1, 13)]
+    month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-    fig = px.bar(
-        df_month, x="month", y="total_emission",
-        color="total_emission",
-        color_continuous_scale=["#22c55e", "#f59e0b", "#ef4444"],
-        labels={"total_emission": "kg CO₂e", "month": ""},
-        text=df_month["total_emission"].round(1).astype(str) + " kg",
-    )
-    fig.update_traces(textposition="outside", marker_line_width=0)
+    if not df_month.empty:
+        month_map = dict(zip(df_month["month"], df_month["total_emission"]))
+    else:
+        month_map = {}
+
+    values = [month_map.get(m, 0.0) for m in all_months]
+    colors = [
+        "#22c55e" if v <= 30
+        else "#f59e0b" if v <= 60
+        else "#ef4444"
+        for v in values
+    ]
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=month_labels,
+        y=values,
+        marker_color=colors,
+        marker_line_width=0,
+        text=[f"{v:.1f}" if v > 0 else "–" for v in values],
+        textposition="inside",
+        insidetextanchor="middle",
+        textfont={"family": "DM Mono", "size": 11, "color": "#ffffff"},
+        hovertemplate="%{x}: %{y:.2f} kg CO₂e<extra></extra>",
+    ))
+
     fig.update_layout(
-        title={"text": "Monthly Totals", "font": {"size": 14, "color": "#6b7280", "family": "DM Sans"}},
+        title={"text": f"Monthly Totals – {current_year}",
+               "font": {"size": 14, "color": "#6b7280", "family": "DM Sans"}},
         template=PLOTLY_TEMPLATE,
-        coloraxis_showscale=False,
         margin=dict(t=50, b=20, l=10, r=10),
         height=320,
         paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        xaxis={"tickfont": {"color": "#111827", "size": 12, "family": "DM Sans"},
+               "gridcolor": "rgba(0,0,0,0)"},
+        yaxis={"tickfont": {"color": "#111827", "size": 11},
+               "gridcolor": "#f0fdf4",
+               "range": [0, max(max(values), 1) * 1.3]},
+        showlegend=False,
     )
     st.plotly_chart(fig, use_container_width=True)
 
     # Monthly stats
-    best  = df_month.loc[df_month["total_emission"].idxmin()]
-    worst = df_month.loc[df_month["total_emission"].idxmax()]
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown(f"""<div class="stat-pill accent">
-            <div class="sp-val">{df_month['total_emission'].sum():.1f}</div>
-            <div class="sp-lbl">Total · kg CO₂e</div></div>""", unsafe_allow_html=True)
-    with c2:
-        st.markdown(f"""<div class="stat-pill accent">
-            <div class="sp-val">{best['month']}</div>
-            <div class="sp-lbl">🏆 Best Month</div></div>""", unsafe_allow_html=True)
-    with c3:
-        st.markdown(f"""<div class="stat-pill accent">
-            <div class="sp-val">{worst['month']}</div>
-            <div class="sp-lbl">⚡ Highest Month</div></div>""", unsafe_allow_html=True)
+    logged_months = [(m, v) for m, v in zip(month_labels, values) if v > 0]
+    if logged_months:
+        best_lbl  = min(logged_months, key=lambda x: x[1])
+        worst_lbl = max(logged_months, key=lambda x: x[1])
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown(f"""<div class="stat-pill accent">
+                <div class="sp-val">{sum(values):.1f}</div>
+                <div class="sp-lbl">Total · kg CO₂e</div></div>""", unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"""<div class="stat-pill accent">
+                <div class="sp-val">{best_lbl[0]}</div>
+                <div class="sp-lbl">🏆 Best Month</div></div>""", unsafe_allow_html=True)
+        with c3:
+            st.markdown(f"""<div class="stat-pill accent">
+                <div class="sp-val">{worst_lbl[0]}</div>
+                <div class="sp-lbl">⚡ Highest Month</div></div>""", unsafe_allow_html=True)
+    else:
+        st.info("No monthly data logged yet.", icon="📆")

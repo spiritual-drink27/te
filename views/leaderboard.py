@@ -31,7 +31,7 @@ def _enrich(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
 def show_leaderboard():
     page_header(
         "Employee Leaderboard",
-        "Lower emissions = better rank · CIL Sonpur Bazari Area",
+        "Lower emissions = better rank · ECL Sonepur Bazari Area",
         "🏆"
     )
 
@@ -41,7 +41,8 @@ def show_leaderboard():
 
     with tab1:
         df = get_daily_leaderboard(today_str)
-        if df.empty or df["daily_emission"].sum() == 0:
+        df = df[df["daily_emission"] > 0].reset_index(drop=True)
+        if df.empty:
             st.info("No one has logged emissions today yet. Be the first! 🌱", icon="📅")
         else:
             df = _enrich(df, "daily_emission")
@@ -95,8 +96,8 @@ def _render_leaderboard(df: pd.DataFrame, value_col: str, label: str):
         )
 
     # ── Bar chart ────────────────────────────────────────────────────
-    section_title("📊 Visual Comparison")
-    display_df = df.copy()
+    section_title("📊 Top 5 Comparison")
+    display_df = df.head(5).copy()
     display_df["label"] = display_df.apply(
         lambda r: f"{r['name']} ({r['department'][:3]})", axis=1
     )
@@ -108,7 +109,7 @@ def _render_leaderboard(df: pd.DataFrame, value_col: str, label: str):
         color=value_col,
         color_continuous_scale=["#16a34a", "#f59e0b", "#ef4444"],
         labels={value_col: "kg CO₂e", "label": ""},
-        title=f"{label} – All Employees",
+        title=f"{label} – Top 5 Performers",
     )
     fig.update_layout(
         template=PLOTLY_TEMPLATE,
