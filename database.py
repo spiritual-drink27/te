@@ -14,7 +14,7 @@ from contextlib import contextmanager
 from pathlib import Path
 import pandas as pd
 
-DB_PATH = Path(__file__).parent / "data" / "ghg_tracker.db"
+DB_PATH = Path(__file__).parent / "ghg_tracker.db"
 
 
 # ─────────────────────────────────────────────

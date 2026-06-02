@@ -311,7 +311,11 @@ def inject_css():
     }
 
     /* ── Success/info alerts ── */
-    .stAlert { border-radius: 10px !important; }
+    .stAlert {
+        background-color: rgba(255, 255, 255, 0.92) !important;
+        border-radius: 10px !important;
+        backdrop-filter: blur(4px) !important;
+    }
 
     /* ── Section headers ── */
     .section-title {
